@@ -7,7 +7,7 @@ import { ZodError } from 'zod'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createRecordSchema, recordSchema } from './validation.js'
-import { normalizeRecord, specSummary } from './records.js'
+import { normalizeRecord, specSummary, withAutomaticStatus } from './records.js'
 
 const app = express()
 const prisma = new PrismaClient()
@@ -28,13 +28,13 @@ app.get('/api/production-records', async (req, res) => {
   if (productName) where.productName = { contains: String(productName) }
   if (line) where.productionLine = String(line)
   const records = await prisma.productionRecord.findMany({ where, orderBy: { createdAt: 'desc' } })
-  res.json(records)
+  res.json(records.map(withAutomaticStatus))
 })
 
 app.get('/api/production-records/:id', async (req, res) => {
   const record = await prisma.productionRecord.findUnique({ where: { id: req.params.id } })
   if (!record) return res.status(404).json({ message: '找不到此生產紀錄' })
-  res.json(record)
+  res.json(withAutomaticStatus(record))
 })
 
 app.post('/api/production-records', async (req, res) => {
@@ -66,7 +66,7 @@ app.get('/api/gantt-records', async (req, res) => {
   const records = await prisma.productionRecord.findMany({ where, orderBy: { productionLine: 'asc' } })
   res.json(records.filter((r) =>
     (r.plannedStartTime && r.plannedEndTime) || (r.actualStartTime && r.actualEndTime)
-  ).map((r) => ({ ...r, specSummary: specSummary(r) })))
+  ).map((r) => ({ ...withAutomaticStatus(r), specSummary: specSummary(r) })))
 })
 
 app.get('/api/export/excel', async (req, res) => {
@@ -88,7 +88,7 @@ app.get('/api/export/excel', async (req, res) => {
   sheet.columns = excelColumns.map(([header, key, width]) => ({ header, key, width }))
   sheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } }
   sheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF173B57' } }
-  records.forEach((record) => sheet.addRow(record))
+  records.forEach((record) => sheet.addRow(withAutomaticStatus(record)))
   ;['createdAt','plannedStartTime','plannedEndTime','actualStartTime','actualEndTime'].forEach((key) => {
     sheet.getColumn(key).numFmt = 'yyyy/mm/dd hh:mm'
   })

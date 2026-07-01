@@ -27,7 +27,7 @@ async function main() {
       thicknessValue: '2.3', thicknessTolerance: '0.1', lengthValue: '100', lengthUnit: 'M',
       weightValue: '5.2', weightTolerance: '0.2', materialInnerPipe: 'PE-100',
       materialColorStrip: 'BLUE-01', plannedStartTime: at(1, 7), plannedEndTime: at(1, 16),
-      status: '未開始', sourceQrLine: 'C5'
+      status: '未生產', sourceQrLine: 'C5'
     }
   ]})
 }

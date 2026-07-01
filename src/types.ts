@@ -1,6 +1,6 @@
 export const LINES = ['C2','C3','C4','C5','C6','C7','C8','C9','A1','A2','A4'] as const
 export const USERS = ['王小明', '陳美玲', '林志偉', '張雅婷']
-export const STATUSES = ['未開始', '生產中', '已完成', '異常'] as const
+export const STATUSES = ['未生產', '生產中', '已完成', '異常'] as const
 
 export type ProductionRecord = {
   id: string
@@ -45,5 +45,5 @@ export const emptyRecord = (line = ''): RecordInput => ({
   lengthValue: '', lengthUnit: 'FT', weightValue: '', weightTolerance: '',
   materialInnerPipe: '', materialInnerMiddle: '', materialOuterMiddle: '',
   materialOuterPipe: '', materialColorStrip: '', plannedStartTime: null, plannedEndTime: null,
-  actualStartTime: null, actualEndTime: null, note: '', status: '未開始', sourceQrLine: line,
+  actualStartTime: null, actualEndTime: null, note: '', status: '未生產', sourceQrLine: line,
 })

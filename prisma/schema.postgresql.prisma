@@ -37,7 +37,7 @@ model ProductionRecord {
   totalProductionMinutes Int?
   totalProductionText    String   @default("")
   note                   String   @default("")
-  status                 String   @default("未開始")
+  status                 String   @default("未生產")
   sourceQrLine           String   @default("")
 
   @@index([recordDate])

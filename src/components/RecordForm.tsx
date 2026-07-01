@@ -1,6 +1,6 @@
 import { AlertTriangle, Clock3, Package, Save, Trash2, Wrench } from 'lucide-react'
 import { useMemo } from 'react'
-import { LINES, STATUSES, USERS, type RecordInput } from '../types'
+import { LINES, USERS, type RecordInput } from '../types'
 import { durationText, toIso, toLocalInput } from '../utils'
 
 type Props = { value: RecordInput; onChange: (value: RecordInput) => void; onSubmit: () => void; onCancel: () => void; onClear?: () => void; admin?: boolean; busy?: boolean; error?: string }
@@ -15,7 +15,9 @@ function DateTime({ label, value, disabled, onChange }: {label:string; value:str
 
 export function RecordForm({ value, onChange, onSubmit, onCancel, onClear, admin, busy, error }: Props) {
   const duration = useMemo(() => durationText(value.actualStartTime, value.actualEndTime), [value.actualStartTime, value.actualEndTime])
-  const timeInvalid = Boolean(value.actualStartTime && value.actualEndTime && new Date(value.actualEndTime) < new Date(value.actualStartTime))
+  const missingActualStart = Boolean(value.actualEndTime && !value.actualStartTime)
+  const timeOrderInvalid = Boolean(value.actualStartTime && value.actualEndTime && new Date(value.actualEndTime) < new Date(value.actualStartTime))
+  const timeInvalid = missingActualStart || timeOrderInvalid
   const numberField = (key: 'quantityMaru'|'quantityBox') => ({ value: value[key] || '', onChange: (e: React.ChangeEvent<HTMLInputElement>) => onChange({...value, [key]: Number(e.target.value)}) })
   return <div className="space-y-5">
     {error && <div role="alert" className="flex gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700"><AlertTriangle className="shrink-0" size={19}/>{error}</div>}
@@ -28,7 +30,6 @@ export function RecordForm({ value, onChange, onSubmit, onCancel, onClear, admin
         <label className="sm:col-span-2 lg:col-span-1"><span className="label">品名 *</span><input className="input" placeholder="例如：PVC 給水管 2吋" {...field(value,onChange,'productName')}/></label>
         <label><span className="label">數量（丸）</span><input className="input" type="number" min="0" inputMode="numeric" {...numberField('quantityMaru')}/></label>
         <label><span className="label">數量（箱）</span><input className="input" type="number" min="0" inputMode="numeric" {...numberField('quantityBox')}/></label>
-        {admin && <label><span className="label">狀態</span><select className="input" {...field(value,onChange,'status')}>{STATUSES.map(x=><option key={x}>{x}</option>)}</select></label>}
       </div>
     </section>
     <section className="card overflow-hidden">
@@ -52,7 +53,7 @@ export function RecordForm({ value, onChange, onSubmit, onCancel, onClear, admin
         <DateTime label="預計結束時間" value={value.plannedEndTime} disabled={!admin} onChange={(v)=>onChange({...value,plannedEndTime:v})}/>
         <DateTime label="實際開始時間 *" value={value.actualStartTime} onChange={(v)=>onChange({...value,actualStartTime:v})}/>
         <DateTime label="實際結束時間 *" value={value.actualEndTime} onChange={(v)=>onChange({...value,actualEndTime:v})}/>
-        <div className={`rounded-xl border p-4 sm:col-span-2 ${timeInvalid ? 'border-red-200 bg-red-50' : 'border-blue-100 bg-blue-50'}`}><span className="text-xs font-bold uppercase tracking-wider text-slate-500">總生產時數（自動計算）</span><strong className={`mt-1 block text-2xl ${timeInvalid ? 'text-red-700' : 'text-blue-800'}`}>{duration}</strong>{timeInvalid && <small className="font-semibold text-red-700">實際結束時間不可早於實際開始時間</small>}</div>
+        <div className={`rounded-xl border p-4 sm:col-span-2 ${timeInvalid ? 'border-red-200 bg-red-50' : 'border-blue-100 bg-blue-50'}`}><span className="text-xs font-bold uppercase tracking-wider text-slate-500">總生產時數（自動計算）</span><strong className={`mt-1 block text-2xl ${timeInvalid ? 'text-red-700' : 'text-blue-800'}`}>{duration}</strong>{timeInvalid && <small className="font-semibold text-red-700">{missingActualStart ? '時間填寫錯誤：請先填寫實際開始時間' : '實際結束時間不可早於實際開始時間'}</small>}</div>
         <label className="sm:col-span-2"><span className="label">備註</span><textarea className="input min-h-28 resize-y" placeholder="輸入現場狀況或異常說明" {...field(value,onChange,'note')}/></label>
       </div>
     </section>
