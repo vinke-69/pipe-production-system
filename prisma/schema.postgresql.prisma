@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ProductionRecord {
+  id                     String   @id @default(cuid())
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  recordDate             DateTime @default(now())
+  userName               String
+  productionLine         String
+  productName            String
+  quantityMaru           Int      @default(0)
+  quantityBox            Int      @default(0)
+  specIdValue            String   @default("")
+  specIdTolerance        String   @default("")
+  thicknessValue         String   @default("")
+  thicknessTolerance     String   @default("")
+  lengthValue            String   @default("")
+  lengthUnit             String   @default("FT")
+  weightValue            String   @default("")
+  weightTolerance        String   @default("")
+  materialInnerPipe      String   @default("")
+  materialInnerMiddle    String   @default("")
+  materialOuterMiddle    String   @default("")
+  materialOuterPipe      String   @default("")
+  materialColorStrip     String   @default("")
+  plannedStartTime       DateTime?
+  plannedEndTime         DateTime?
+  actualStartTime        DateTime?
+  actualEndTime          DateTime?
+  totalProductionMinutes Int?
+  totalProductionText    String   @default("")
+  note                   String   @default("")
+  status                 String   @default("未開始")
+  sourceQrLine           String   @default("")
+
+  @@index([recordDate])
+  @@index([productName])
+  @@index([productionLine])
+}
