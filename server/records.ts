@@ -14,7 +14,7 @@ export function duration(start?: Date | null, end?: Date | null) {
 }
 
 export function automaticStatus(actualStart?: Date | null, actualEnd?: Date | null) {
-  if (!actualStart) return '未開始'
+  if (!actualStart) return actualEnd ? '異常' : '未生產'
   if (!actualEnd) return '生產中'
   return actualEnd < actualStart ? '異常' : '已完成'
 }
@@ -30,8 +30,12 @@ export function normalizeRecord(input: Record<string, unknown>) {
     plannedStartTime, plannedEndTime, actualStartTime, actualEndTime,
     totalProductionMinutes: total.minutes,
     totalProductionText: total.text,
-    status: input.status || automaticStatus(actualStartTime, actualEndTime),
+    status: automaticStatus(actualStartTime, actualEndTime),
   }
+}
+
+export function withAutomaticStatus<T extends { actualStartTime?: Date | null; actualEndTime?: Date | null }>(record: T) {
+  return { ...record, status: automaticStatus(record.actualStartTime, record.actualEndTime) }
 }
 
 export function specSummary(r: ProductionRecord) {
