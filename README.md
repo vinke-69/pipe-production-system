@@ -94,3 +94,14 @@ http://你的伺服器位址:3001/mobile/report?line=A1
 - 要改用 PostgreSQL 時，調整 `prisma/schema.prisma` 的 provider 與 `.env` 的 `DATABASE_URL`，再執行 migration。
 
 目前版本依需求未加入登入權限。若部署到多人可存取的網路，應在正式上線前加入管理者登入、角色權限、HTTPS 與稽核紀錄。
+
+## 免費公開部署
+
+本專案提供 `render.yaml`，可部署至 Render 免費 Web Service，資料庫使用 Neon 免費 PostgreSQL：
+
+1. 在 Neon 建立免費專案並取得 pooled `DATABASE_URL`。
+2. 在 Render 建立 Blueprint，選擇此 GitHub repository。
+3. 在 Render 的 `DATABASE_URL` 填入 Neon 連線字串。
+4. 部署會自動產生 PostgreSQL Prisma Client、建立資料表並載入示範資料。
+
+免費 Render 服務閒置後會休眠，因此第一次開啟可能需要約一分鐘。正式部署使用 `prisma/schema.postgresql.prisma`；本機開發仍使用 SQLite 的 `prisma/schema.prisma`。

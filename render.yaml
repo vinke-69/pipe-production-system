@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: pipe-production-system
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: pnpm install --frozen-lockfile && pnpm exec prisma generate --schema prisma/schema.postgresql.prisma && pnpm build
+    startCommand: pnpm exec prisma db push --schema prisma/schema.postgresql.prisma && pnpm db:seed && pnpm start
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        sync: false
